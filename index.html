@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <title>iPhone Simulator - Kakao Interactive</title>
+  <style>
+    :root {
+      --bg-glass: rgba(255, 255, 255, 0.25);
+      --bg-glass-dark: rgba(30, 30, 30, 0.75);
+      --border-glass: rgba(255, 255, 255, 0.3);
+      --text-main: #ffffff;
+      --ios-yellow: #fee500;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #000;
+    }
+
+    #phone-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      overflow: hidden;
+    }
+
+    .status-bar {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 44px;
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-main);
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 999;
+    }
+
+    .home-bar {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 134px;
+      height: 5px;
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 3px;
+      z-index: 1000;
+      cursor: pointer;
+    }
+
+    .screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      flex-direction: column;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    #lock-screen {
+      justify-content: flex-start;
+      align-items: center;
+      padding-top: 60px;
+    }
+
+    .lock-time {
+      font-size: 80px;
+      font-weight: 200;
+      color: var(--text-main);
+      line-height: 1;
+    }
+
+    .lock-date {
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--text-main);
+      margin-top: 10px;
+    }
+
+    .lock-hint {
+      position: absolute;
+      bottom: 40px;
+      color: var(--text-main);
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    #home-screen {
+      padding: 50px 20px 20px 20px;
+      justify-content: space-between;
+    }
+
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px 15px;
+      margin-top: 20px;
+    }
+
+    .app-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .app-icon .icon-box {
+      width: 60px;
+      height: 60px;
+      border-radius: 14px;
+      background: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 28px;
+      color: white;
+    }
+
+    .app-icon span {
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--text-main);
+      text-align: center;
+    }
+
+    .dock {
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 35px;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-around;
+      border: 1px solid var(--border-glass);
+      margin-bottom: 15px;
+    }
+
+    .app-view {
+      background: #abc1d1;
+      color: #000;
+      z-index: 100;
+      padding-top: 44px;
+      padding-bottom: 30px;
+      height: 100%;
+    }
+
+    /* Kakao Chat UI */
+    .chat-header {
+      padding: 10px 15px;
+      background: #a0b1c0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: bold;
+    }
+
+    .chat-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .chat-body {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .msg-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .msg-row.me {
+      flex-direction: row-reverse;
+    }
+
+    .chat-bubble {
+      padding: 10px 14px;
+      border-radius: 14px;
+      max-width: 70%;
+      font-size: 14px;
+      color: #000;
+      word-break: break-word;
+    }
+
+    .msg-row.other .chat-bubble {
+      background: #ffffff;
+    }
+
+    .msg-row.me .chat-bubble {
+      background: var(--ios-yellow);
+    }
+
+    .chat-img {
+      max-width: 180px;
+      border-radius: 10px;
+    }
+
+    .chat-input-bar {
+      display: flex;
+      padding: 10px;
+      background: #ffffff;
+      gap: 8px;
+    }
+
+    .chat-input-bar input {
+      flex: 1;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      padding: 8px 15px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .chat-input-bar button {
+      background: var(--ios-yellow);
+      border: none;
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div id="phone-container">
+  <div class="status-bar">
+    <span id="clock-status">00:00</span>
+    <span>5G 100%</span>
+  </div>
+
+  <div id="lock-screen" class="screen active">
+    <div class="lock-time" id="lock-time">00:00</div>
+    <div class="lock-date" id="lock-date">10月 25日 星期日</div>
+    <div class="lock-hint">點擊畫面解鎖</div>
+  </div>
+
+  <div id="home-screen" class="screen">
+    <div style="padding: 20px;">
+      <div class="app-grid">
+        <div class="app-icon" onclick="openApp('kakao')">
+          <div class="icon-box" style="background:#fee500; color:#000;">💬</div>
+          <span>KakaoTalk</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dock">
+      <div class="app-icon" onclick="openApp('kakao')">
+        <div class="icon-box" style="background:#fee500; color:#000;">💬</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="app-kakao" class="screen app-view">
+    <div class="chat-header">
+      <img id="header-avatar" class="chat-avatar" src="" alt="avatar">
+      <span id="chat-name">怡晴</span>
+    </div>
+    <div class="chat-body" id="chat-body"></div>
+    <div class="chat-input-bar">
+      <input type="text" id="user-input" placeholder="傳送訊息..." onkeypress="handleKeyPress(event)">
+      <button onclick="sendMessage()">傳送</button>
+    </div>
+  </div>
+
+  <div class="home-bar" onclick="closeApp()"></div>
+</div>
+
+<script>
+  const CONFIG = {
+    wallpaper: "https://picsum.photos/800/1600",
+    friendName: "怡晴",
+    avatarUrl: "https://lh3.googleusercontent.com/gg-d/AFp-9hR9aQc34n0C0-349883508=w400",
+    frogImgUrl: "https://lh3.googleusercontent.com/gg-d/AFp-9hRq5u8372691039=w400"
+  };
+
+  let hasResponded = false;
+
+  function initApp() {
+    document.getElementById('phone-container').style.backgroundImage = `url('${CONFIG.wallpaper}')`;
+    document.getElementById('header-avatar').src = CONFIG.avatarUrl;
+    document.getElementById('chat-name').innerText = CONFIG.friendName;
+    updateClock();
+    setInterval(updateClock, 1000);
+  }
+
+  function updateClock() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const mins = String(now.getMinutes()).padStart(2, '0');
+    const timeStr = `${hours}:${mins}`;
+    document.getElementById('clock-status').innerText = timeStr;
+    document.getElementById('lock-time').innerText = timeStr;
+  }
+
+  document.getElementById('lock-screen').addEventListener('click', () => {
+    document.getElementById('lock-screen').classList.remove('active');
+    document.getElementById('home-screen').classList.add('active');
+  });
+
+  function openApp(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(`app-${id}`).classList.add('active');
+  }
+
+  function closeApp() {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('home-screen').classList.add('active');
+  }
+
+  function handleKeyPress(e) {
+    if (e.key === 'Enter') sendMessage();
+  }
+
+  function sendMessage() {
+    const input = document.getElementById('user-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    appendMessage('me', text);
+    input.value = '';
+
+    if (!hasResponded) {
+      hasResponded = true;
+      setTimeout(() => {
+        appendMessage('other', '6767');
+        setTimeout(() => {
+          appendImage('other', CONFIG.frogImgUrl);
+        }, 1000);
+      }, 800);
+    }
+  }
+
+  function appendMessage(sender, text) {
+    const body = document.getElementById('chat-body');
+    const row = document.createElement('div');
+    row.className = `msg-row ${sender}`;
+
+    if (sender === 'other') {
+      const avatar = document.createElement('img');
+      avatar.className = 'chat-avatar';
+      avatar.src = CONFIG.avatarUrl;
+      row.appendChild(avatar);
+    }
+
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble';
+    bubble.innerText = text;
+    row.appendChild(bubble);
+
+    body.appendChild(row);
+    body.scrollTop = body.scrollHeight;
+  }
+
+  function appendImage(sender, imgUrl) {
+    const body = document.getElementById('chat-body');
+    const row = document.createElement('div');
+    row.className = `msg-row ${sender}`;
+
+    if (sender === 'other') {
+      const avatar = document.createElement('img');
+      avatar.className = 'chat-avatar';
+      avatar.src = CONFIG.avatarUrl;
+      row.appendChild(avatar);
+    }
+
+    const img = document.createElement('img');
+    img.className = 'chat-img';
+    img.src = imgUrl;
+    row.appendChild(img);
+
+    body.appendChild(row);
+    body.scrollTop = body.scrollHeight;
+  }
+
+  window.onload = initApp;
+</script>
+</body>
+</html>
